@@ -29,4 +29,27 @@
 
 
 
-(simulates-a-day)
+;(simulates-a-day)
+
+(defn terrible-arrived-at
+  [person]
+  (def hospital (h.logic/arrived-at-with-pauses hospital :g-queue person))
+  (println "after inserting " person))
+
+(defn simulates-a-day-in-parallel
+  []
+  (def hospital (h.model/new-hospital))
+
+  (.start (Thread. (fn [] (terrible-arrived-at "111"))))
+  (.start (Thread. (fn [] (terrible-arrived-at "222"))))
+  (.start (Thread. (fn [] (terrible-arrived-at "333"))))
+  (.start (Thread. (fn [] (terrible-arrived-at "444"))))
+  (.start (Thread. (fn [] (terrible-arrived-at "555"))))
+  (.start (Thread. (fn [] (terrible-arrived-at "666"))))
+
+  (.start (Thread. (fn [] (Thread/sleep 4000)
+                     (pprint hospital))))
+
+  )
+
+(simulates-a-day-in-parallel)
