@@ -35,5 +35,34 @@
     (pprint @hospital-grey)
     ))
 
-(test-atom)
+;(test-atom)
 
+
+(defn terrible-arrived-at!
+  [hospital person]
+  (swap! hospital h.logic/arrived-at :g-queue person)
+  (println "after inserting " person))
+
+(defn not-so-terrible-arrived-at!
+  [hospital person]
+  (swap! hospital h.logic/arrived-at :g-queue person)
+  (println "after inserting " person))
+
+(defn simulates-a-day-in-parallel
+  []
+  (let [hospital (atom (h.model/new-hospital))]
+
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "111"))))
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "222"))))
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "333"))))
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "444"))))
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "555"))))
+    (.start (Thread. (fn [] (not-so-terrible-arrived-at! hospital "666"))))
+
+    (.start (Thread. (fn [] (Thread/sleep 8000)
+                       (pprint hospital))))
+
+    )
+  )
+
+(simulates-a-day-in-parallel)
