@@ -1,4 +1,6 @@
-(ns exploring-tests.logic)
+(ns exploring-tests.logic
+  (:require [exploring-tests.model :as h.model]
+            [schema.core :as s]))
 
 (defn fits-in-queue?
   [hospital department]
@@ -33,18 +35,22 @@
     {:hospital new-hospital, :result :success}
     {:hospital hospital, :result :impossible-to-add-patient-to-the-queue}))
 
-(defn was-attended-to
-  [hospital department]
+(s/defn was-attended-to :- h.model/Hospital
+  [hospital :- h.model/Hospital
+   department :- s/Keyword]
   (update hospital department pop))
 
-(defn next-patient
-  [hospital department]
+(s/defn next-patient :- h.model/PatientID
+  [hospital :- h.model/Hospital
+   department :- s/Keyword]
   (-> hospital
       department
       peek))
 
-(defn transfer
-  [hospital from to]
+(s/defn transfer :- h.model/Hospital
+  [hospital :- h.model/Hospital
+   from :- s/Keyword
+   to :- s/Keyword]
   (let [patient (next-patient hospital from)]
     (-> hospital
         (was-attended-to from)

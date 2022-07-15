@@ -1,7 +1,10 @@
 (ns exploring-tests.logic-test
-  (:require [clojure.test :refer :all])
-  (:require [exploring-tests.logic :refer [fits-in-queue?, arrived-at, transfer]])
-  (:require [exploring-tests.model :as h.model]))
+  (:require [clojure.test :refer :all]
+            [exploring-tests.logic :refer [fits-in-queue?, arrived-at, transfer]]
+            [exploring-tests.model :as h.model]
+            [schema.core :as s]))
+
+(s/set-fn-validation! true)
 
 (deftest fits-in-queue?-test
   ;zero boundary
@@ -59,15 +62,15 @@
 
 (deftest transfer-test
   (testing "that transfer works if patient will fit in the destination department"
-    (let [original-hospital {:g-queue (conj h.model/empty-queue 5) :x-ray (conj h.model/empty-queue) }]
-      (is (= {:g-queue [] :x-ray [5]} (transfer original-hospital :g-queue :x-ray))))
+    (let [original-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue) }]
+      (is (= {:g-queue [] :x-ray ["5"]} (transfer original-hospital :g-queue :x-ray))))
 
-    (let [original-hospital {:g-queue [51 5]
-                             :x-ray (conj h.model/empty-queue 13)}]
-      (is (= {:g-queue [5] :x-ray [13 51]} (transfer original-hospital :g-queue :x-ray))))
+    (let [original-hospital {:g-queue (conj h.model/empty-queue "51" "5")
+                             :x-ray (conj h.model/empty-queue "13")}]
+      (is (= {:g-queue ["5"] :x-ray ["13" "51"]} (transfer original-hospital :g-queue :x-ray))))
     )
 
   (testing "that transfer doesn't works if patient will fit in the destination department"
-    (let [full-hospital {:g-queue (conj h.model/empty-queue 5) :x-ray (conj h.model/empty-queue 1 23 45 67 42) }]
+    (let [full-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue "1" "23" "45" "67"   "42") }]
       (is (thrown? clojure.lang.ExceptionInfo (transfer full-hospital :g-queue :x-ray))))
     ))
