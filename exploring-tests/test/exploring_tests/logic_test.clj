@@ -62,15 +62,26 @@
 
 (deftest transfer-test
   (testing "that transfer works if patient will fit in the destination department"
-    (let [original-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue) }]
+    (let [original-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue)}]
       (is (= {:g-queue [] :x-ray ["5"]} (transfer original-hospital :g-queue :x-ray))))
 
     (let [original-hospital {:g-queue (conj h.model/empty-queue "51" "5")
-                             :x-ray (conj h.model/empty-queue "13")}]
+                             :x-ray   (conj h.model/empty-queue "13")}]
       (is (= {:g-queue ["5"] :x-ray ["13" "51"]} (transfer original-hospital :g-queue :x-ray))))
     )
 
   (testing "that transfer doesn't works if patient will fit in the destination department"
-    (let [full-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue "1" "23" "45" "67"   "42") }]
-      (is (thrown? clojure.lang.ExceptionInfo (transfer full-hospital :g-queue :x-ray))))
-    ))
+    (let [full-hospital {:g-queue (conj h.model/empty-queue "5") :x-ray (conj h.model/empty-queue "1" "23" "45" "67" "42")}]
+      (is (thrown? clojure.lang.ExceptionInfo (transfer full-hospital :g-queue :x-ray)))))
+
+  (testing "cannot invoke transfer without a hospital"
+    (is (thrown? clojure.lang.ExceptionInfo (transfer nil :g-queue :x-ray))))
+
+  (testing "mandatory conditions"
+    (let [hospital {:g-queue (conj h.model/empty-queue "5")
+                    :x-ray (conj h.model/empty-queue "1" "23" "45" "67")}]
+      (is (thrown? AssertionError
+                   (transfer hospital :random-dep :x-ray)))
+
+      (is (thrown? AssertionError
+                   (transfer hospital :x-ray :random-dep))))))

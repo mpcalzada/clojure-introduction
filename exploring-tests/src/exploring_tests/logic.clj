@@ -47,10 +47,20 @@
       department
       peek))
 
+(defn same-size?
+  [pre-hospital post-hospital from]
+  (= (+ (count (from pre-hospital)) (count (from pre-hospital)))
+     (+ (count (from post-hospital)) (count (from post-hospital)))))
+
 (s/defn transfer :- h.model/Hospital
   [hospital :- h.model/Hospital
    from :- s/Keyword
    to :- s/Keyword]
+  {
+   :pre  [(contains? hospital from)
+          (contains? hospital to)]
+   :post [(same-size? hospital % from)]
+   }
   (let [patient (next-patient hospital from)]
     (-> hospital
         (was-attended-to from)
